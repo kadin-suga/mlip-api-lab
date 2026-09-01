@@ -1,4 +1,5 @@
 import json
+# from nt import environ
 import os
 from typing import Any, Dict
 from litellm import completion
@@ -34,16 +35,18 @@ print(completion.choices[0].message.content)
 
 def callLite(prompt: str):
   response = completion(
-    model="openai/gpt-oss-120b:free",
+    model="openai/glm-5.3-flash-search:free",
     api_base="https://api.unorouter.com/v1",
     api_key=os.environ["UNOROUTER_API_KEY"],
-    messages=[
-        {"prompt": f"{prompt}"}
-    ],
-)
-
-  print(response.choices[0].message.content)
-  return response
+    messages=[{"role": "user", "content": prompt}],
+  )
+  # response = completion(
+  #   model= "gemini/gemini-3.5-flash",
+  #   api_key = os.environ["GEMINI_API_KEY"],
+  #   messages=[{"role": "user", "content": prompt}],
+  # # )
+  # print(response.choices[0].message.content)
+  return response.choices[0].message.content
 
 
 def get_itinerary(destination: str) -> dict[str, Any]:
@@ -61,20 +64,33 @@ def get_itinerary(destination: str) -> dict[str, Any]:
     prompt= {
       "ideal_visit_times": f"""Look at {destination} and figure out what are the best times of the years to travel as a 
                                 tourist. Then figure out which months are the most optimal times to travel where there isn't
-                                much rush and traffic at the {destination}. Ground your search with the web. Do not provide explanations
-                                or reasoning. Only offer an array's of dates/months where there isn't a lot of ground traffic at the 
+                                much rush and traffic at the {destination}. Ground your search with the web.  Only offer an array's of dates/months where there isn't a lot of ground traffic at the 
                                 {destination}, in other words not peak traffic dates.
+
+                                Explicit output rules:
+                                Do not provide explanations or reasoning or any labels to the output.
+                                Only ouput a array, no json.
+                                Do not add decorators to the output values.
                             """,
       "price_range": f"""Given the {destination}, Search on the web for what is the average price range for a 
                       vacation of per day for the destination {destination}. When discussing the consumption and travel habits
                       take into account of an American Tourist. Answers should be answered in dollars. Research continuously
                       when gaining clarity on the travel. Do not provide any explanations or reasoning only numeric answers in 
                       United States Dollars. 
+
+                      Explicit output rules:
+                      Do not provide explanations or reasoning or any labels to the output.
+                      Do not add decorators to the output values.
                       """,
       "top_attractions": f"""Given the {destination}, list out the top attractions to visit and view at the given {destination} for a tourist.
                               Keep all thoughts and research isolated to the mind of a American Tourist. Ground research with information, reddit
                               threads, twitter threads, facebook messages, travel sites. Do not provide any explanations or reasoning. Provide answers in 
                               a array of attractions to visit.
+
+                              Explicit output rules:
+                              Do not provide explanations or reasoning or any labels to the output.
+                              Only ouput a array, no json.
+                              Do not add decorators to the output values.
                       """,
     }
     steerCheck = callLite(
@@ -139,14 +155,11 @@ def get_itinerary(destination: str) -> dict[str, Any]:
     if (steerCheck):
       data = {
         "destination" :  destination,
-        "ideal_visit_times": callLite(prompt["ideal_visit_times"]),
+        "ideal_visit_times": json.loads(callLite(prompt["ideal_visit_times"])),
         "price_range": callLite(prompt["price_range"]),
-        "top_attractions": callLite(prompt["top_attractions"])
+        "top_attractions": json.loads(callLite(prompt["top_attractions"]))
       }
     else:
       data= "Enter a new destination"
-
-
-    
-
+    print(data)
     return data

@@ -10,13 +10,13 @@ def index():
 @app.get("/api/v1/itinerary")
 def itinerary():
     destination = request.args.get("destination", "").strip()
-
     # Basic request validation
     if not destination:
         return jsonify({"error": "Missing required query parameter: destination"}), 400
     if len(destination) > 120:
         return jsonify({"error": "destination is too long (max 120 chars)"}), 400
 
+    # print("Step is functional")
     try:
         result = get_itinerary(destination)
         return jsonify(result), 200
