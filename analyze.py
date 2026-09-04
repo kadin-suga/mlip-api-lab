@@ -7,32 +7,6 @@ from litellm import completion
 # You can replace these with other models as needed but this is the one we suggest for this lab.
 # MODEL = "groq/llama-3.3-70b-versatile"
 
-"https://api.unorouter.com/v1"
-
-"""
-curl https://api.unorouter.com/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sk-osdBMLLwd6wY5LPHBQLG8uTc3Hl2eYX7Ku3YncXXaUEgcDrm" \
-  -d '{
-    "model": "gpt-oss-120b:free",
-    "messages": [{ "role": "user", "content": "Hello!" }]
-  }'
-
-
-  from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://api.unorouter.com/v1",
-    api_key="",
-)
-
-completion = client.chat.completions.create(
-    model="gpt-oss-120b:free",
-    messages=[{"role": "user", "content": "Hello!"}],
-)
-print(completion.choices[0].message.content)
-"""
-
 def callLite(prompt: str):
   response = completion(
     model="openai/glm-5.3-flash-search:free",
